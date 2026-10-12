@@ -11,7 +11,7 @@
 // @license    GPL-3.0-only
 // @create     2015-11-25
 // @run-at     document-start
-// @version    27.20
+// @version    27.21
 // @connect    baidu.com
 // @connect    google.com
 // @connect    google.com.hk
@@ -49,8 +49,9 @@
 // @home-url2  https://github.com/langren1353/GM_script
 // @homepageURL  https://greasyfork.org/zh-TW/scripts/14178
 // @copyright  2015-2026, AC
-// @lastmodified  2026-06-18
+// @lastmodified  2026-10-12
 // @feedback-url  https://github.com/langren1353/GM_script
+// @note    2026.10-12-V27.21 修复谷歌新版搜索页双列居中时结果被挤到右侧轨道外的错位
 // @note    2026.06-18-V27.20 修复百度错位的问题
 // @note    2026.01-06-V27.19 修复百度、谷歌、必应的一些bug，增加页面加载动画，优化页面资源占用，避免大量的资源占用
 // @note    2025.10-22-V27.18 修复谷歌、百度在不同缩放屏幕下导致的错位问题
@@ -1915,6 +1916,33 @@
           CONST.cssAutoInsert.add("leftCommonStyle", CONST.adsCSSList.leftCommonStyle)
           CONST.cssAutoInsert.add("twoPageStyle", CONST.adsCSSList.twoPageStyle)
           CONST.cssAutoInsert.add("multiPageStyle", CONST.adsCSSList.multiPageStyle)
+        }
+        // Google 2026 SERP: #rcnt.YNk70c 最后一列轨道宽度是 0。
+        // 双列样式里的 grid-column:unset 会把 #center_col 自动排进这条轨道，结果整列画到视口右侧外面。
+        if (+CONST.curConfig.adsStyleMode >= 3 && CONST.options.useItem.SiteTypeID === CONST.options.google.SiteTypeID) {
+          CONST.cssAutoInsert.add("googleTwoColGridFix", `
+#rcnt.YNk70c #center_col.ufC5Cb {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  justify-self: stretch !important;
+  left: auto !important;
+}
+#rso[two-father] {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box;
+}
+#rcnt #rhs,
+#rso #rhs {
+  display: none !important;
+}
+`)
         }
       }
       CONST.cssAutoInsert.add("styleLogo", ".minidiv #logo img{width: 100px;height: unset;margin-top: 0.3rem;} body.purecss-mode:before{display: none;}")
